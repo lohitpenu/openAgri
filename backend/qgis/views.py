@@ -114,3 +114,24 @@ class QGISViewSet(viewsets.ModelViewSet):
 
         serializer = QGISSerializer(qgis_data, many=True)
         return Response(serializer.data)
+
+    def update(self, request, pk=None):
+        try:
+            qgis = self.get_object()
+            device = qgis.device
+
+            if device.type.id != QGIS_DEV:
+                return Response({'error': 'Device is not of type QGIS'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not request.user.is_superuser and request.user not in device.users.all():
+                return Response({'error': 'Device is not associated with the authenticated user'}, status=status.HTTP_403_FORBIDDEN)
+
+            serializer = self.get_serializer(qgis, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except QGIS.DoesNotExist:
+            return Response({'error': 'QGIS data not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

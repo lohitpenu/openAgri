@@ -19,6 +19,8 @@ router.register(r'devices', devices_views.DeviceViewSet, basename='device')
 router.register(r'mobiles', mobile_views.MobileViewSet, basename='mobile')
 router.register(r'qgis', qgis_views.QGISViewSet, basename='qgis')
 router.register(r'wstations', weather_views.WeatherStationViewSet, basename='wstation')
+router.register(r'wstations-edge', weather_views.WeatherStationAPIkeyViewSet, basename='wstation-edge')
+router.register(r'api-keys', users_views.ApiKeyViewSet, basename='api-key')
 
 urlpatterns = router.urls
 

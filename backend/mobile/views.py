@@ -115,3 +115,24 @@ class MobileViewSet(viewsets.ModelViewSet):
         mobiles = Mobile.objects.filter(device__users__id=user_id)
         serializer = MobileSerializer(mobiles, many=True)
         return Response(serializer.data)
+    
+    def update(self, request, pk=None):
+        try:
+            mobile = self.get_object()
+            device = mobile.device
+
+            if device.type.id != self.MOBILE:
+                return Response({'error': 'Device is not of type MOBILE'}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not request.user.is_superuser and request.user not in device.users.all():
+                return Response({'error': 'Device is not associated with the authenticated user'}, status=status.HTTP_403_FORBIDDEN)
+
+            serializer = self.get_serializer(mobile, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Mobile.DoesNotExist:
+            return Response({'error': 'Mobile data not found'}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

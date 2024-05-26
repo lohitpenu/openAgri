@@ -2,6 +2,7 @@
 from rest_framework import serializers
 from .models import CustomUser
 from devices.serializers import DeviceSerializer
+from .models import ApiKey
 
 class UserSerializer(serializers.ModelSerializer):
     contact = serializers.CharField(max_length=100, allow_blank=True, required=False)
@@ -21,3 +22,9 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+class ApiKeySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ApiKey
+        fields = ['key', 'created_at']
+        read_only_fields = ['key', 'created_at']

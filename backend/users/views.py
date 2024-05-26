@@ -13,7 +13,8 @@ from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import IsAdminUser
-
+from .models import ApiKey
+from .serializers import ApiKeySerializer
 
 # from devices.serializers import DeviceSerializer
 # from rest_framework.decorators import action
@@ -124,3 +125,14 @@ class UserViewSet(viewsets.ViewSet):
     #         return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
     #     except Exception as e:
     #         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ApiKeyViewSet(viewsets.ModelViewSet):
+    queryset = ApiKey.objects.all()
+    serializer_class = ApiKeySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
