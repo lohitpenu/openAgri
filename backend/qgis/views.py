@@ -6,8 +6,8 @@ from .models import QGIS, Device
 from .serializers import QGISSerializer
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
+from utils.utils import DeviceType
 
-QGIS_DEV = 2
 
 class QGISViewSet(viewsets.ModelViewSet):
     queryset = QGIS.objects.all()
@@ -22,7 +22,7 @@ class QGISViewSet(viewsets.ModelViewSet):
         except Device.DoesNotExist:
             return Response({'error': 'Device not found'}, status=status.HTTP_404_NOT_FOUND)
         
-        if device.type.id != QGIS_DEV:
+        if device.type.id != DeviceType.QGIS:
             return Response({'error': 'Device is not of type QGIS'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Check if the device is associated with the authenticated user
@@ -120,7 +120,7 @@ class QGISViewSet(viewsets.ModelViewSet):
             qgis = self.get_object()
             device = qgis.device
 
-            if device.type.id != QGIS_DEV:
+            if device.type.id != DeviceType.QGIS:
                 return Response({'error': 'Device is not of type QGIS'}, status=status.HTTP_400_BAD_REQUEST)
 
             if not request.user.is_superuser and request.user not in device.users.all():

@@ -8,8 +8,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from users.models import ApiKey
 from rest_framework.permissions import AllowAny
-
-WEATHER_STATION = 3  # Define your device type constant
+from utils.utils import DeviceType
 
 class WeatherStationViewSet(viewsets.ModelViewSet):
     queryset = WeatherStation.objects.all()
@@ -25,7 +24,7 @@ class WeatherStationViewSet(viewsets.ModelViewSet):
         except Device.DoesNotExist:
             return Response({'error': 'Device not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        if device.type.id != WEATHER_STATION:
+        if device.type.id != DeviceType.WEATHER_STATION:
             return Response({'error': 'Device is not of type WEATHER_STATION'}, status=status.HTTP_400_BAD_REQUEST)
         
         if not request.user.is_superuser and request.user not in device.users.all():
@@ -169,7 +168,7 @@ class WeatherStationAPIkeyViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Device not found'}, status=status.HTTP_404_NOT_FOUND)
 
         # Check device type and ownership
-        if device.type.id != WEATHER_STATION:
+        if device.type.id != DeviceType.WEATHER_STATION:
             return Response({'error': 'Device is not of type WEATHER_STATION'}, status=status.HTTP_400_BAD_REQUEST)
         
         # if not device.users.all():

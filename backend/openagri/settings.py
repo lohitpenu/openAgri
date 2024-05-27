@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'rest_framework',
     # 'rest_framework.authtoken', #Used to enable token authentication
     'rest_framework_simplejwt',
-    'core',
     'users',
     'devices',
     'mobile',

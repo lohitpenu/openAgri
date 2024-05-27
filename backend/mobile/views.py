@@ -6,8 +6,7 @@ from .models import Mobile, Device
 from .serializers import MobileSerializer
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
-
-MOBILE = 1  # Define your device type constant
+from utils.utils import DeviceType
 
 class MobileViewSet(viewsets.ModelViewSet):
     queryset = Mobile.objects.all()
@@ -23,7 +22,7 @@ class MobileViewSet(viewsets.ModelViewSet):
         except Device.DoesNotExist:
             return Response({'error': 'Device not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        if device.type.id != MOBILE:
+        if device.type.id != DeviceType.MOBILE:
             return Response({'error': 'Device is not of type MOBILE'}, status=status.HTTP_400_BAD_REQUEST)
 
         if not request.user.is_superuser and request.user not in device.users.all():
@@ -121,7 +120,7 @@ class MobileViewSet(viewsets.ModelViewSet):
             mobile = self.get_object()
             device = mobile.device
 
-            if device.type.id != self.MOBILE:
+            if device.type.id != DeviceType.MOBILE:
                 return Response({'error': 'Device is not of type MOBILE'}, status=status.HTTP_400_BAD_REQUEST)
 
             if not request.user.is_superuser and request.user not in device.users.all():

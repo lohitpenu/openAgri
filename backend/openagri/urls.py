@@ -1,6 +1,5 @@
 from django.urls import path
 from django.contrib import admin
-from core import views as core_views
 from users import views as users_views
 from devices import views as devices_views
 from mobile import views as mobile_views
