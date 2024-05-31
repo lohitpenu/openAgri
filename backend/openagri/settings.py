@@ -40,6 +40,27 @@ DEBUG = int(os.environ.get("DEBUG", default=0))
 ALLOWED_HOSTS = os.environ.get("DJANGO_ALLOWED_HOSTS").split(" ")
 
 
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+CORS_ALLOW_CREDENTIALS = True
+
+
+CSRF_TRUSTED_ORIGINS = ['https://*.e-yantra.org','https://*.127.0.0.1']
+
+CORS_REPLACE_HTTPS_REFERER = True
+
+CSRF_COOKIE_DOMAIN = 'e-yantra.org'
+
+CORS_ORIGIN_WHITELIST = (
+    'https://agripest.e-yantra.org',
+    'agripest.e-yantra.org',
+    'e-yantra.org',
+)
+
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -95,10 +116,21 @@ WSGI_APPLICATION = 'openagri.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#       'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'openagri',
+        'USER': 'openagri',
+        'PASSWORD': 'openagri*',
+        'HOST': 'eyantradb-2022.cluster-cxwuu7h64xc9.ap-south-1.rds.amazonaws.com',
+        'PORT': '3306',
     }
 }
 
