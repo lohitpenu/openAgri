@@ -2,11 +2,14 @@ from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
-from .models import Mobile, Device
-from .serializers import MobileSerializer
+from rest_framework.parsers import MultiPartParser, FormParser
+from .models import Mobile, Device, Image
+from .serializers import MobileSerializer, ImageSerializer
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from utils.utils import DeviceType
+from django.http import FileResponse
+from django.http import Http404
 
 class MobileViewSet(viewsets.ModelViewSet):
     queryset = Mobile.objects.all()
@@ -135,3 +138,78 @@ class MobileViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Mobile data not found'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+class ImageViewSet(viewsets.ModelViewSet):
+    queryset = Image.objects.all()
+    serializer_class = ImageSerializer
+    parser_classes = (MultiPartParser, FormParser)
+
+    @action(detail=False, methods=['post'], parser_classes=[MultiPartParser, FormParser])
+    def upload(self, request, *args, **kwargs):
+        mobile_id = request.data.get('mobile')
+        if not mobile_id:
+            return Response({"detail": "Mobile ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            mobile = Mobile.objects.get(id=mobile_id, device__users=request.user)
+        except Mobile.DoesNotExist:
+            return Response({"detail": "Mobile not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(mobile=mobile)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    @action(detail=False, methods=['post'], parser_classes=[MultiPartParser, FormParser])
+    def upload_multiple(self, request, *args, **kwargs):
+        mobile_id = request.data.get('mobile')
+        if not mobile_id:
+            return Response({"detail": "Mobile ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            mobile = Mobile.objects.get(id=mobile_id, device__users=request.user)
+        except Mobile.DoesNotExist:
+            return Response({"detail": "Mobile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        files = request.FILES.getlist('images')
+        if not files:
+            return Response({"detail": "No images provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        images = []
+        for file in files:
+            image = Image(mobile=mobile, image_file=file)
+            image.save()
+            images.append(image)
+
+        serializer = ImageSerializer(images, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'])
+    def all(self, request):
+        user = request.user  # Assuming user authentication is enabled
+        mobile_id = request.query_params.get('mobile_data_id')
+        if not mobile_id:
+            return Response({"detail": "Mobile ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            mobile = Mobile.objects.get(id=mobile_id, device__users=user)
+        except Mobile.DoesNotExist:
+            return Response({"detail": "Mobile not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        images = Image.objects.filter(mobile=mobile)
+        serializer = self.get_serializer(images, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'])
+    def download(self, request, pk=None):
+        user = request.user  # Assuming user authentication is enabled
+        image_id = request.query_params.get('image_id')
+        try:
+            image = Image.objects.get(id=image_id, mobile__device__users=user)
+        except Image.DoesNotExist:
+            return Response({"detail": "Image not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Serve the image file using FileResponse
+        try:
+            return FileResponse(image.image_file)
+        except FileNotFoundError:
+            raise Http404("Image not found.")

@@ -12,3 +12,10 @@ class Mobile(models.Model):
 
     def __str__(self):
         return f"Mobile {self.id}-Device {self.device.name}" if self.device else f"Mobile {self.id}"
+    
+class Image(models.Model):
+    mobile = models.ForeignKey(Mobile, on_delete=models.CASCADE, related_name='images')
+    image_file = models.ImageField(upload_to='images/')
+
+    def __str__(self):
+        return f"Image {self.id} for Mobile {self.mobile.id}"
