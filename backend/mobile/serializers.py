@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Mobile, Image
+from .models import Mobile
 
 class MobileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,8 +13,3 @@ class MobileSerializer(serializers.ModelSerializer):
             'recording_time', 
             'device'
         ]
-
-class ImageSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Image
-        fields = ['id', 'mobile', 'image_file']

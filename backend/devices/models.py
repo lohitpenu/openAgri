@@ -21,3 +21,10 @@ class Device(models.Model):
 
     def __str__(self):
         return self.name
+    
+class Image(models.Model):
+    device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='images')
+    image_file = models.ImageField(upload_to='images/')
+
+    def __str__(self):
+        return f"Image {self.id} for Device {self.device.id}"

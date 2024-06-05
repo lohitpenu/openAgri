@@ -1,13 +1,16 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .models import Device
-from .serializers import DeviceSerializer
+from .models import Device, Image
+from .serializers import DeviceSerializer, ImageSerializer
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
+from django.http import FileResponse
+from rest_framework.parsers import MultiPartParser, FormParser
+from django.http import Http404
 
 User = get_user_model()
 
@@ -117,3 +120,93 @@ class DeviceViewSet(viewsets.ModelViewSet):
         else:
             return Response({'status': 'User not mapped to device'}, status=status.HTTP_200_OK)
 
+class ImageViewSet(viewsets.ModelViewSet):
+    queryset = Image.objects.all()
+    serializer_class = ImageSerializer
+    parser_classes = (MultiPartParser, FormParser)
+
+    @action(detail=False, methods=['post'], parser_classes=[MultiPartParser, FormParser])
+    def upload(self, request, *args, **kwargs):
+        device_id = request.data.get('device')
+        if not device_id:
+            return Response({"detail": "Device ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            device = Device.objects.get(id=device_id)
+            if request.user in device.users.all() or request.user.is_superuser:
+                device = Device.objects.get(id=device_id)
+            else:
+                return Response({"detail": "You do not have permission to access this resource."}, status=status.HTTP_403_FORBIDDEN)
+        except Device.DoesNotExist:
+            return Response({"detail": "Device not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(device=device)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    
+    @action(detail=False, methods=['post'], parser_classes=[MultiPartParser, FormParser])
+    def upload_multiple(self, request, *args, **kwargs):
+        device_id = request.data.get('device')
+        if not device_id:
+            return Response({"detail": "Device ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            device = Device.objects.get(id=device_id)
+            if request.user in device.users.all() or request.user.is_superuser:
+                device = Device.objects.get(id=device_id)
+            else:
+                return Response({"detail": "You do not have permission to access this resource."}, status=status.HTTP_403_FORBIDDEN)
+        except Device.DoesNotExist:
+            return Response({"detail": "Device not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        files = request.FILES.getlist('images')
+        if not files:
+            return Response({"detail": "No images provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        images = []
+        for file in files:
+            image = Image(device=device, image_file=file)
+            image.save()
+            images.append(image)
+
+        serializer = ImageSerializer(images, many=True)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['get'])
+    def all(self, request):
+        user = request.user  # Assuming user authentication is enabled
+        device_id = request.query_params.get('device_id')
+        if not device_id:
+            return Response({"detail": "Device ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            device = Device.objects.get(id=device_id)
+            if request.user in device.users.all() or request.user.is_superuser:
+                device = Device.objects.get(id=device_id)
+            else:
+                return Response({"detail": "You do not have permission to access this resource."}, status=status.HTTP_403_FORBIDDEN)
+        except Device.DoesNotExist:
+            return Response({"detail": "Device not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+        images = Image.objects.filter(device=device)
+        serializer = self.get_serializer(images, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'])
+    def download(self, request, pk=None):
+        user = request.user  # Assuming user authentication is enabled
+        image_id = request.query_params.get('image_id')
+        try:
+            image = Image.objects.get(id=image_id)
+            device = image.device
+            if request.user in device.users.all() or request.user.is_superuser:
+                pass
+            else:
+                return Response({"detail": "You do not have permission to access this resource."}, status=status.HTTP_403_FORBIDDEN)
+        except Image.DoesNotExist:
+            return Response({"detail": "Image not found/No permission."}, status=status.HTTP_404_NOT_FOUND)
+
+        # Serve the image file using FileResponse
+        try:
+            return FileResponse(image.image_file)
+        except FileNotFoundError:
+            raise Http404("Image not found.")
