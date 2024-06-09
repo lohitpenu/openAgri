@@ -4,7 +4,7 @@ from .models import Device, Image, DeviceType
 class DeviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Device
-        fields = ('id', 'name', 'macaddress', 'type')
+        fields = ('id', 'name', 'address', 'type')
 
 class DeviceTypeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,4 +14,4 @@ class DeviceTypeSerializer(serializers.ModelSerializer):
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
-        fields = ['id', 'device', 'image_file']
+        fields = ['id', 'device']

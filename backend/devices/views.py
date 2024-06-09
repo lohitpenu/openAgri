@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import Device, Image
 from .serializers import DeviceSerializer, ImageSerializer
-from rest_framework.exceptions import PermissionDenied
+from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAdminUser
 from django.shortcuts import get_object_or_404
@@ -50,7 +50,17 @@ class DeviceViewSet(viewsets.ModelViewSet):
         else:
             raise PermissionDenied("You do not have permission to access this resource.")
  
-    
+    @action(detail=False, methods=['get'], url_path='address/(?P<address>[^/.]+)', permission_classes=[IsAuthenticated])
+    def retrieve_by_address(self, request, address=None):
+        try:
+            device = Device.objects.get(address=address)
+            if request.user in device.users.all() or request.user.is_superuser:
+                serializer = self.get_serializer(device)
+                return Response(serializer.data)
+            else:
+                raise PermissionDenied("You do not have permission to access this resource.")
+        except Device.DoesNotExist:
+            raise NotFound(detail="Device not found", code=404)
 
     @action(detail=True, methods=['post'], permission_classes=[IsAuthenticated])
     def map_user(self, request, pk=None):

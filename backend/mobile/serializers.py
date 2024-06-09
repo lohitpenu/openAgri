@@ -11,5 +11,9 @@ class MobileSerializer(serializers.ModelSerializer):
             # 'image_path', 
             'qr_code', 
             'recording_time', 
-            'device'
+            'device',
+            'pesticides_type',
+            'pesticide_name',
+            'pesticide_used',
+            'recording_time',
         ]

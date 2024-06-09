@@ -12,7 +12,7 @@ class DeviceType(models.Model):
 class Device(models.Model):
     name = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
-    macaddress = models.CharField(max_length=100)  # Assuming MAC address length is 17 characters
+    address = models.CharField(max_length=100, unique=True)  # Assuming MAC address length is 17 characters
     type = models.ForeignKey(DeviceType, on_delete=models.SET_NULL, null=True, related_name='devices')
     # type = models.IntegerField(null=True)
 
