@@ -10,6 +10,7 @@ from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
 )
+from users import serializers as user_serializers
 
 router = routers.DefaultRouter()
 
@@ -27,6 +28,6 @@ urlpatterns = router.urls
 urlpatterns += [
     path('admin/', admin.site.urls),
     # path('contact/', core_views.ContactAPIView.as_view()),
-    path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('login/', TokenObtainPairView.as_view(serializer_class=user_serializers.CustomTokenObtainPairSerializer), name='token_obtain_pair'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

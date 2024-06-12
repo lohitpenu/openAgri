@@ -22,7 +22,7 @@ class MobileViewSet(viewsets.ModelViewSet):
         except Device.DoesNotExist:
             return Response({'error': 'Device not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        if device.type.id != DeviceType.MOBILE:
+        if device.type.id != DeviceType.MOBILE.value:
             return Response({'error': 'Device is not of type MOBILE'}, status=status.HTTP_400_BAD_REQUEST)
 
         if not request.user.is_superuser and request.user not in device.users.all():
@@ -120,7 +120,7 @@ class MobileViewSet(viewsets.ModelViewSet):
             mobile = self.get_object()
             device = mobile.device
 
-            if device.type.id != DeviceType.MOBILE:
+            if device.type.id != DeviceType.MOBILE.value:
                 return Response({'error': 'Device is not of type MOBILE'}, status=status.HTTP_400_BAD_REQUEST)
 
             if not request.user.is_superuser and request.user not in device.users.all():

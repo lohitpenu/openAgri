@@ -10,9 +10,8 @@ class Mobile(models.Model):
     recording_time=models.DateTimeField(null=True)
     device = models.ForeignKey(Device, on_delete=models.SET_NULL, null=True, related_name='mobiles')
     pesticides_type=models.IntegerField(null=True)
-    pesticide_name=models.CharField(max_length=256)
+    pesticide_name=models.CharField(max_length=256, null=True)
     pesticide_used=models.FloatField(null=True)
-    recording_time=models.DateTimeField(null=True)
 
     def __str__(self):
         return f"Mobile {self.id}-Device {self.device.name}" if self.device else f"Mobile {self.id}"

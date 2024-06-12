@@ -24,7 +24,7 @@ class WeatherStationViewSet(viewsets.ModelViewSet):
         except Device.DoesNotExist:
             return Response({'error': 'Device not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        if device.type.id != DeviceType.WEATHER_STATION:
+        if device.type.id != DeviceType.WEATHER_STATION.value:
             return Response({'error': 'Device is not of type WEATHER_STATION'}, status=status.HTTP_400_BAD_REQUEST)
         
         if not request.user.is_superuser and request.user not in device.users.all():
@@ -121,7 +121,7 @@ class WeatherStationViewSet(viewsets.ModelViewSet):
             weather_station = self.get_object()
             device = weather_station.device
 
-            if device.type.id != self.WEATHER_STATION:
+            if device.type.id != DeviceType.WEATHER_STATION.value:
                 return Response({'error': 'Device is not of type WEATHER_STATION'}, status=status.HTTP_400_BAD_REQUEST)
 
             if not request.user.is_superuser and request.user not in device.users.all():
@@ -168,7 +168,7 @@ class WeatherStationAPIkeyViewSet(viewsets.ModelViewSet):
             return Response({'error': 'Device not found'}, status=status.HTTP_404_NOT_FOUND)
 
         # Check device type and ownership
-        if device.type.id != DeviceType.WEATHER_STATION:
+        if device.type.id != DeviceType.WEATHER_STATION.value:
             return Response({'error': 'Device is not of type WEATHER_STATION'}, status=status.HTTP_400_BAD_REQUEST)
         
         # if not device.users.all():

@@ -15,5 +15,4 @@ class MobileSerializer(serializers.ModelSerializer):
             'pesticides_type',
             'pesticide_name',
             'pesticide_used',
-            'recording_time',
         ]
