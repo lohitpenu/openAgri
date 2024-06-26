@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Mobile
+from .models import Mobile, Crop
 
 class MobileSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,4 +15,10 @@ class MobileSerializer(serializers.ModelSerializer):
             'pesticides_type',
             'pesticide_name',
             'pesticide_used',
+            'crop'
         ]
+
+class CropSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Crop
+        fields = '__all__'

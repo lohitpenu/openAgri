@@ -17,6 +17,7 @@ router = routers.DefaultRouter()
 router.register(r'users', users_views.UserViewSet, basename='user')
 router.register(r'devices', devices_views.DeviceViewSet, basename='device')
 router.register(r'mobiles', mobile_views.MobileViewSet, basename='mobile')
+router.register(r'crops', mobile_views.CropViewSet, basename='crop')
 router.register(r'images', devices_views.ImageViewSet, basename='image')
 router.register(r'qgis', qgis_views.QGISViewSet, basename='qgis')
 router.register(r'wstations', weather_views.WeatherStationViewSet, basename='wstation')
@@ -27,7 +28,6 @@ urlpatterns = router.urls
 
 urlpatterns += [
     path('admin/', admin.site.urls),
-    # path('contact/', core_views.ContactAPIView.as_view()),
     path('login/', TokenObtainPairView.as_view(serializer_class=user_serializers.CustomTokenObtainPairSerializer), name='token_obtain_pair'),
     path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
