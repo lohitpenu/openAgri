@@ -116,23 +116,24 @@ WSGI_APPLICATION = 'openagri.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-#DATABASES = {
-#    'default': {
-#       'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-#}
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'openagri',
-        'USER': 'openagri',
-        'PASSWORD': 'openagri*',
-        'HOST': 'eyantradb-2022.cluster-cxwuu7h64xc9.ap-south-1.rds.amazonaws.com',
-        'PORT': '3306',
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'openagri',
+            'USER': 'openagri',
+            'PASSWORD': 'openagri*',
+            'HOST': 'eyantradb-2022.cluster-cxwuu7h64xc9.ap-south-1.rds.amazonaws.com',
+            'PORT': '3306',
+        }
+    }
 
 
 # Password validation
