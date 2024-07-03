@@ -170,12 +170,25 @@ class ImageViewSet(viewsets.ModelViewSet):
             return Response({"detail": "Device not found."}, status=status.HTTP_404_NOT_FOUND)
 
         files = request.FILES.getlist('images')
+        geo_locations = request.data.get('geo_locations')
+
         if not files:
             return Response({"detail": "No images provided."}, status=status.HTTP_400_BAD_REQUEST)
 
+        if not geo_locations:
+            return Response({"detail": "Geo locations are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            geo_locations = eval(geo_locations)  # assuming geo_locations is a string representation of a list of tuples
+        except:
+            return Response({"detail": "Invalid geo locations format."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if len(files) != len(geo_locations):
+            return Response({"detail": "The number of images does not match the number of geo locations."}, status=status.HTTP_400_BAD_REQUEST)
+
         images = []
-        for file in files:
-            image = Image(device=device, image_file=file)
+        for file, (lat, long) in zip(files, geo_locations):
+            image = Image(device=device, image_file=file, geo_location_lat=lat, geo_location_long=long)
             image.save()
             images.append(image)
 

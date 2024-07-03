@@ -23,6 +23,8 @@ class Device(models.Model):
         return self.name
     
 class Image(models.Model):
+    geo_location_lat = models.FloatField(null=True)
+    geo_location_long = models.FloatField(null=True)
     device = models.ForeignKey(Device, on_delete=models.CASCADE, related_name='images')
     image_file = models.ImageField(upload_to='images/')
 

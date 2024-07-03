@@ -14,4 +14,4 @@ class DeviceTypeSerializer(serializers.ModelSerializer):
 class ImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Image
-        fields = ['id', 'device']
+        fields = ['id', 'device', 'geo_location_lat', 'geo_location_long']
