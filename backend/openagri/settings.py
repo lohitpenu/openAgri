@@ -52,7 +52,7 @@ CSRF_TRUSTED_ORIGINS = ['https://*.e-yantra.org','https://*.127.0.0.1']
 
 CORS_REPLACE_HTTPS_REFERER = True
 
-CSRF_COOKIE_DOMAIN = 'e-yantra.org'
+CSRF_COOKIE_DOMAIN = ['https://*.e-yantra.org','https://*.127.0.0.1']
 
 CORS_ORIGIN_WHITELIST = (
     'https://agripest.e-yantra.org',

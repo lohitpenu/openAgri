@@ -1,10 +1,12 @@
 from django.db import models
 from devices.models import Device
+from users.models import CustomUser
     
 class Crop(models.Model):
     name = models.CharField(max_length=256)
     location = models.CharField(max_length=256)
     type = models.CharField(max_length=50)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='crops')
 
     def __str__(self):
         return self.name

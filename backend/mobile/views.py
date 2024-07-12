@@ -212,29 +212,9 @@ class CropViewSet(viewsets.ModelViewSet):
     queryset = Crop.objects.all()
     serializer_class = CropSerializer
 
-    @action(detail=False, methods=['get'], url_path='user', permission_classes=[IsAuthenticated])
-    def crops_user(self, request):
+    @action(detail=False, methods=['get'], url_path='all')
+    def my_crops(self, request):
         user = request.user
-        devices = Device.objects.filter(users=user)
-        # Get mobiles associated with those devices
-        mobiles = Mobile.objects.filter(device__in=devices)
-        # Get crops associated with those mobiles
-        crops = Crop.objects.filter(mobiles__in=mobiles).distinct()
-        serializer = self.get_serializer(crops, many=True)
-        return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'], url_path='user_admin/(?P<user_id>\d+)', permission_classes=[IsAdminUser])
-    def crops_user_admin(self, request, user_id=None):
-        try:
-            user = CustomUser.objects.get(pk=user_id)
-        except CustomUser.DoesNotExist:
-            return Response({"detail": "User not found."}, status=404)
-
-        devices = Device.objects.filter(users=user)
-        # Get mobiles associated with those devices
-        mobiles = Mobile.objects.filter(device__in=devices)
-        # Get crops associated with those mobiles
-        crops = Crop.objects.filter(mobiles__in=mobiles).distinct()
-
+        crops = Crop.objects.filter(user=user)
         serializer = self.get_serializer(crops, many=True)
         return Response(serializer.data)
